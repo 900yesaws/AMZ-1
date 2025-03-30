@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amazon Affiliate Showcase - Public</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    /* Hero Section */
+    .hero {
+      background-color: #005bb5;
+      padding: 60px 20px;
+      border-radius: 10px;
+      text-align: center;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .hero h2 {
+      font-size: 36px;
+      margin: 0;
+    }
+    .hero p {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+    /* Grid for Product Cards */
+    .grid-container {
+      max-width: 1200px;
+      margin: 20px auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    .product-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .product-card img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    .product-card h3 {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+    .current-price {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .discount {
+      font-size: 20px;
+      color: red;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    .list-price {
+      font-size: 12px;
+      text-decoration: line-through;
+      color: #999;
+    }
+    .limited-time {
+      font-size: 12px;
+      color: red;
+      margin-top: 5px;
+    }
+    .buy-button {
+      background-color: #ff9900;
+      color: white;
+      padding: 10px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    .buy-button:hover {
+      background-color: #cc7a00;
+    }
+    footer {
+      max-width: 800px;
+      margin: 40px auto;
+      text-align: center;
+      font-size: 12px;
+      color: #555;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 40px 10px;
+      }
+      .hero h2 {
+        font-size: 28px;
+      }
+      .hero p {
+        font-size: 16px;
+      }
+      .grid-container, footer {
+        margin: 10px auto;
+        padding: 10px;
+      }
+      .current-price {
+        font-size: 24px;
+      }
+      .discount {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <h2>Welcome to Trend Bargains</h2>
+    <p>Discover top bargains and trending deals all in one place!</p>
+  </div>
+  
+  <!-- Container for Product Cards -->
+  <div class="grid-container" id="productList"></div>
+  
+  <footer>
+    As an Amazon Associate, I earn from qualifying purchases. Prices and availability are subject to change without notice. We do our best to keep the listings updated, but please check the product page on Amazon for the latest details.<br>
+    &copy; <span id="currentYear"></span> All rights reserved.
+  </footer>
+  
+  <script>
+    // Get products from localStorage; if none are found, use sample data as fallback.
+    function getProducts() {
+      let products = JSON.parse(localStorage.getItem("products"));
+      if (!products || products.length === 0) {
+        products = [
+          {
+            id: 1,
+            name: "Sample Product 1",
+            image: "https://via.placeholder.com/200",
+            affiliateLink: "https://amzn.to/sample1",
+            currentPrice: 19.99,
+            listPrice: 29.99,
+            discount: Math.ceil((29.99 - 19.99) / 29.99 * 100)
+          },
+          {
+            id: 2,
+            name: "Sample Product 2",
+            image: "https://via.placeholder.com/200",
+            affiliateLink: "https://amzn.to/sample2",
+            currentPrice: 49.99,
+            listPrice: 69.99,
+            discount: Math.ceil((69.99 - 49.99) / 69.99 * 100)
+          },
+          {
+            id: 3,
+            name: "Sample Product 3",
+            image: "https://via.placeholder.com/200",
+            affiliateLink: "https://amzn.to/sample3",
+            currentPrice: 9.99,
+            listPrice: 19.99,
+            discount: Math.ceil((19.99 - 9.99) / 19.99 * 100)
+          }
+        ];
+      }
+      return products;
+    }
+    
+    // Render a single product card
+    function renderProduct(product) {
+      const card = document.createElement("div");
+      card.className = "product-card";
+      card.setAttribute("data-id", product.id);
+      
+      // Product image
+      const img = document.createElement("img");
+      img.src = product.image;
+      img.alt = product.name;
+      card.appendChild(img);
+      
+      // Product title
+      const title = document.createElement("h3");
+      title.textContent = product.name;
+      card.appendChild(title);
+      
+      // Price line: current price and discount percentage (with a minus sign)
+      const priceLine = document.createElement("p");
+      const cpSpan = document.createElement("span");
+      cpSpan.className = "current-price";
+      cpSpan.textContent = `$${product.currentPrice.toFixed(2)}`;
+      const discSpan = document.createElement("span");
+      discSpan.className = "discount";
+      discSpan.textContent = `-${Math.ceil(product.discount)}%`;
+      priceLine.appendChild(cpSpan);
+      priceLine.appendChild(discSpan);
+      card.appendChild(priceLine);
+      
+      // List price (strikethrough)
+      const listPricePara = document.createElement("p");
+      listPricePara.className = "list-price";
+      listPricePara.textContent = `Was: $${product.listPrice.toFixed(2)}`;
+      card.appendChild(listPricePara);
+      
+      // Limited Time Deal label
+      const limitedTimePara = document.createElement("p");
+      limitedTimePara.className = "limited-time";
+      limitedTimePara.textContent = "Limited Time Deal!";
+      card.appendChild(limitedTimePara);
+      
+      // Buy on Amazon button
+      const buyLink = document.createElement("a");
+      buyLink.href = product.affiliateLink;
+      buyLink.className = "buy-button";
+      buyLink.target = "_blank";
+      buyLink.textContent = "Buy on Amazon";
+      card.appendChild(buyLink);
+      
+      document.getElementById("productList").appendChild(card);
+    }
+    
+    function renderProducts() {
+      const container = document.getElementById("productList");
+      container.innerHTML = "";
+      const products = getProducts();
+      products.forEach((product) => renderProduct(product));
+    }
+    
+    window.addEventListener("load", function() {
+      renderProducts();
+      document.getElementById("currentYear").textContent = new Date().getFullYear();
+    });
+  </script>
+</body>
+</html>
