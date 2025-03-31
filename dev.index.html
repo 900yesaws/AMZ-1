@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon Affiliate Showcase - Private</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 10px;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    .hero {
+      background-color: #005bb5;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      color: #fff;
+      margin-bottom: 15px;
+    }
+    .hero h2 {
+      font-size: 28px;
+      margin: 0;
+    }
+    .hero p {
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    form {
+      max-width: 800px;
+      margin: 15px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+    input, button {
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #0073e6;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #005bb5;
+    }
+    .grid-container {
+      max-width: 1200px;
+      margin: 15px auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      padding: 10px;
+    }
+    .product-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    .product-card img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .product-card h3 {
+      font-size: 16px;
+      margin: 5px 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .product-details {
+      margin: 8px 0;
+    }
+    .current-price {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .discount {
+      font-size: 14px;
+      color: red;
+      font-weight: bold;
+      margin-left: 5px;
+    }
+    .list-price {
+      font-size: 12px;
+      text-decoration: line-through;
+      color: #999;
+      margin-top: 5px;
+    }
+    .limited-time {
+      font-size: 12px;
+      color: red;
+      margin: 5px 0;
+    }
+    .buy-button {
+      background-color: #ff9900;
+      color: white;
+      padding: 8px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    .buy-button:hover {
+      background-color: #cc7a00;
+    }
+    .button-group {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+      margin-top: 5px;
+    }
+    .edit-button, .delete-button {
+      padding: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .edit-button {
+      background-color: #ffc107;
+      color: white;
+    }
+    .edit-button:hover {
+      background-color: #e0a800;
+    }
+    .delete-button {
+      background-color: #dc3545;
+      color: white;
+    }
+    .delete-button:hover {
+      background-color: #c82333;
+    }
+    footer {
+      max-width: 800px;
+      margin: 20px auto;
+      text-align: center;
+      font-size: 10px;
+      color: #555;
+      border-top: 1px solid #ddd;
+      padding-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <h2>Welcome to Trend Bargains</h2>
+    <p>Discover top bargains and trending deals all in one place!</p>
+  </div>
+
+  <form id="productForm">
+    <input type="text" id="productName" placeholder="Product Name" required />
+    <input type="url" id="productImage" placeholder="Image URL" required />
+    <input type="url" id="affiliateLink" placeholder="Affiliate Link (e.g., https://amzn.to/...)" required />
+    <input type="number" id="currentPrice" placeholder="Current Price" step="0.01" required />
+    <input type="number" id="listPrice" placeholder="List Price" step="0.01" required />
+    <button type="submit">Add Product</button>
+  </form>
+  
+  <div class="grid-container" id="productList"></div>
+  
+  <footer>
+    As an Amazon Associate, I earn from qualifying purchases. Prices and availability are subject to change without notice. We do our best to keep the listings updated, but please check the product page on Amazon for the latest details.<br>
+    &copy; <span id="currentYear"></span> All rights reserved.
+  </footer>
+
+  <script>
+    function getProducts() {
+      return JSON.parse(localStorage.getItem("products")) || [];
+    }
+
+    function saveProducts(products) {
+      localStorage.setItem("products", JSON.stringify(products));
+    }
+
+    function renderProduct(product) {
+      const card = document.createElement("div");
+      card.className = "product-card";
+
+      const img = document.createElement("img");
+      img.src = product.image;
+      img.alt = product.name;
+      card.appendChild(img);
+
+      const title = document.createElement("h3");
+      title.textContent = product.name;
+      card.appendChild(title);
+
+      const details = document.createElement("div");
+      details.className = "product-details";
+
+      const priceLine = document.createElement("p");
+      const currentPrice = document.createElement("span");
+      currentPrice.className = "current-price";
+      currentPrice.textContent = `$${product.currentPrice.toFixed(2)}`;
+      const discount = document.createElement("span");
+      discount.className = "discount";
+      discount.textContent = `${Math.ceil(product.discount)}% OFF`;
+      priceLine.appendChild(currentPrice);
+      priceLine.appendChild(discount);
+
+      const listPrice = document.createElement("p");
+      listPrice.className = "list-price";
+      listPrice.textContent = `Was: $${product.listPrice.toFixed(2)}`;
+
+      const limitedTime = document.createElement("p");
+      limitedTime.className = "limited-time";
+      limitedTime.textContent = "Limited Time Deal!";
+
+      details.appendChild(priceLine);
+      details.appendChild(listPrice);
+      details.appendChild(limitedTime);
+
+      card.appendChild(details);
+
+      const buttonGroup = document.createElement("div");
+      buttonGroup.className = "button-group";
+
+      const editButton = document.createElement("button");
+      editButton.className = "edit-button";
+      editButton.textContent = "Edit";
+      buttonGroup.appendChild(editButton);
+
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "delete-button";
+      deleteButton.textContent = "Delete";
+      buttonGroup.appendChild(deleteButton);
+
+      editButton.addEventListener("click", () => loadProductIntoForm(product.id));
+      deleteButton.addEventListener("click", () => deleteProduct(product.id));
+
+      card.appendChild(buttonGroup);
+
+      const buyButton = document.createElement("a");
+      buyButton.href = product.affiliateLink;
+      buyButton.className = "buy-button";
+      buyButton.target = "_blank";
+      buyButton.textContent = "Buy on Amazon";
+
+      card.appendChild(buyButton);
+      document.getElementById("productList").appendChild(card);
+    }
+
+    function renderProducts() {
+      const container = document.getElementById("productList");
+      container.innerHTML = ""; // Clear the grid before rendering
+      const products = getProducts();
+      products.forEach(renderProduct);
+    }
+
+    function addProduct(product) {
+      const products = getProducts();
+      products.push(product);
+      saveProducts(products);
+      renderProducts();
+    }
+
+    function deleteProduct(id) {
+      let products = getProducts();
+      products = products.filter(product => product.id !== id);
+      saveProducts(products);
+      renderProducts();
+    }
+
+        function loadProductIntoForm(id) {
+      const products = getProducts();
+      const product = products.find(product => product.id === id);
+      if (!product) return;
+
+      // Populate the form fields with product data for editing
+      document.getElementById("productName").value = product.name;
+      document.getElementById("productImage").value = product.image;
+      document.getElementById("affiliateLink").value = product.affiliateLink;
+      document.getElementById("currentPrice").value = product.currentPrice;
+      document.getElementById("listPrice").value = product.listPrice;
+
+      // Delete the product so it can be updated when re-added
+      deleteProduct(id);
+    }
+
+    document.getElementById("productForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("productName").value;
+      const image = document.getElementById("productImage").value;
+      const affiliateLink = document.getElementById("affiliateLink").value.trim();
+      const currentPrice = parseFloat(document.getElementById("currentPrice").value);
+      const listPrice = parseFloat(document.getElementById("listPrice").value);
+
+      if (!affiliateLink.startsWith("https://amzn.to/")) {
+        alert("Affiliate Link must start with 'https://amzn.to/'");
+        return;
+      }
+
+      const discount = Math.ceil(((listPrice - currentPrice) / listPrice) * 100);
+      const product = {
+        id: Date.now(),
+        name,
+        image,
+        affiliateLink,
+        currentPrice,
+        listPrice,
+        discount,
+      };
+
+      addProduct(product); // Add product to storage and update the grid
+      this.reset(); // Clear the form inputs
+    });
+
+    window.addEventListener("load", function () {
+      renderProducts(); // Render all products on page load
+      document.getElementById("currentYear").textContent = new Date().getFullYear();
+    });
+  </script>
+</body>
+</html>
