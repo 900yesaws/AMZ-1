@@ -62,34 +62,36 @@
             errorMessage.innerHTML = "";
 
             try {
+                // Check if there's data in localStorage
                 const storedData = localStorage.getItem("products");
                 if (storedData) {
                     products = JSON.parse(storedData);
                 } else {
-                    throw new Error("No product data found.");
+                    // If no data exists in localStorage, use an empty list
+                    products = [];
                 }
 
                 if (products.length === 0) {
                     errorMessage.innerHTML = "No products available.";
+                } else {
+                    products.forEach((product, index) => {
+                        const item = document.createElement("div");
+                        item.classList.add("product");
+                        item.innerHTML = `
+                            <img src="${product.image}" alt="${product.title}">
+                            <a href="${product.url}" target="_blank">${product.title}</a>
+                            <div class="price">$${product.price}<span class="discount">-${product.discount}%</span></div>
+                            <div class="was-price">Was: $${product.wasPrice}</div>
+                            <div class="limited-time">Limited Time Deal</div>
+                            <div class="buttons">
+                                <button class="edit" onclick="editProduct(${index})">Edit</button>
+                                <button class="delete" onclick="deleteProduct(${index})">Delete</button>
+                                <a class="buy" href="${product.url}" target="_blank">Buy on Amazon</a>
+                            </div>
+                        `;
+                        grid.appendChild(item);
+                    });
                 }
-
-                products.forEach((product, index) => {
-                    const item = document.createElement("div");
-                    item.classList.add("product");
-                    item.innerHTML = `
-                        <img src="${product.image}" alt="${product.title}">
-                        <a href="${product.url}" target="_blank">${product.title}</a>
-                        <div class="price">$${product.price}<span class="discount">-${product.discount}%</span></div>
-                        <div class="was-price">Was: $${product.wasPrice}</div>
-                        <div class="limited-time">Limited Time Deal</div>
-                        <div class="buttons">
-                            <button class="edit" onclick="editProduct(${index})">Edit</button>
-                            <button class="delete" onclick="deleteProduct(${index})">Delete</button>
-                            <a class="buy" href="${product.url}" target="_blank">Buy on Amazon</a>
-                        </div>
-                    `;
-                    grid.appendChild(item);
-                });
 
             } catch (error) {
                 errorMessage.innerHTML = `Failed to load product data. Please try again later.`;
@@ -141,6 +143,11 @@
             localStorage.setItem("products", JSON.stringify(products));
             loadProducts(); // Re-load products after deletion
         }
+
+        document.addEventListener("DOMContentLoaded", loadProducts);
+    </script>
+</body>
+</html>
 
         document.addEventListener("DOMContentLoaded", loadProducts);
     </script>
