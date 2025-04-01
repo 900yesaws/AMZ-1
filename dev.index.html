@@ -62,12 +62,15 @@
             errorMessage.innerHTML = "";
 
             try {
-                // Check if there's data in localStorage
+                // Attempt to load product data from localStorage
                 const storedData = localStorage.getItem("products");
+                console.log("Stored data:", storedData);  // Log stored data to see if it's valid
+
                 if (storedData) {
                     products = JSON.parse(storedData);
                 } else {
-                    // If no data exists in localStorage, use an empty list
+                    // If no data exists, log it and initialize an empty list
+                    console.log("No product data found in localStorage.");
                     products = [];
                 }
 
@@ -95,7 +98,7 @@
 
             } catch (error) {
                 errorMessage.innerHTML = `Failed to load product data. Please try again later.`;
-                console.error(error);
+                console.error("Error loading product data:", error); // Log the exact error
             }
         }
 
@@ -149,7 +152,3 @@
 </body>
 </html>
 
-        document.addEventListener("DOMContentLoaded", loadProducts);
-    </script>
-</body>
-</html>
